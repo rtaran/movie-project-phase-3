@@ -9,10 +9,10 @@ class IStorage(ABC):
         """Returns a dictionary containing all stored movies."""
         pass
 
-    @abstractmethod
-    def add_movie(self, title, year, rating, poster):
-        """Adds a new movie to the storage."""
-        pass
+    class IStorage(ABC):
+        @abstractmethod
+        def add_movie(self, title, year, rating, poster):
+            pass
 
     @abstractmethod
     def delete_movie(self, title):
