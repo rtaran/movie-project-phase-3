@@ -1,4 +1,5 @@
-from istorage import IStorage
+from .istorage import IStorage  # ✅ Uses relative import
+import os
 import json
 import requests
 from urllib.parse import quote_plus
@@ -14,10 +15,19 @@ class StorageJson(IStorage):
         self.file_path = file_path
 
     def _load_movies(self):
+        """Load movies from JSON file correctly."""
         try:
-            with open(self.file_path, 'r') as file:
-                return json.load(file).get("movies", {})
-        except (FileNotFoundError, json.JSONDecodeError):
+            if os.path.exists(self.file_path):
+                with open(self.file_path, "r", encoding="utf-8") as file:
+                    data = json.load(file)
+                    if "movies" in data:  # ✅ Fix: Extract movies correctly
+                        return data["movies"]
+                    return data
+            else:
+                print("⚠️ No movies.json file found, starting with an empty collection.")
+                return {}
+        except json.JSONDecodeError as e:
+            print(f"❌ Error loading JSON file: {e}")
             return {}
 
     def _save_movies(self, movies):
@@ -94,6 +104,6 @@ class StorageJson(IStorage):
 
 # ✅ **Testing API Integration**
 if __name__ == "__main__":
-    storage = StorageJson("movies.json")
+    storage = StorageJson("../data/movies.json")
     storage.add_movie("Malcolm & Marie")  # 🎬 Fetches data from OMDb API!
     storage.display_movies()

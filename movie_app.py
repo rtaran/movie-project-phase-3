@@ -1,9 +1,9 @@
 import requests
 import random
 import os
+import statistics
 from urllib.parse import quote_plus
 from dotenv import load_dotenv
-from istorage import IStorage
 
 # Load API Key from .env
 load_dotenv()
@@ -95,15 +95,23 @@ class MovieApp:
             print("❌ Error: Invalid rating format! Please enter a number between 1 and 10.")
 
     def _command_movie_stats(self):
-        """Show basic movie statistics."""
+        """Show basic movie statistics, including the median rating."""
         movies = self._storage.list_movies()
+
         if movies:
-            avg_rating = sum(m["rating"] for m in movies.values()) / len(movies)
-            print(f"📊 Average Movie Rating: {avg_rating:.2f}/10")
-            print(f"🏆 Highest Rated Movie: {max(movies, key=lambda x: movies[x]['rating'])}")
-            print(f"🐢 Lowest Rated Movie: {min(movies, key=lambda x: movies[x]['rating'])}")
+            ratings = [details["rating"] for details in movies.values()]
+            avg_rating = sum(ratings) / len(ratings)
+            median_rating = statistics.median(ratings)  # ✅ Calculate median rating
+            highest_rated = max(movies, key=lambda x: movies[x]["rating"])
+            lowest_rated = min(movies, key=lambda x: movies[x]["rating"])
+
+            print("\n📊 Movie Statistics:")
+            print(f"⭐ Average Rating: {avg_rating:.2f}/10")
+            print(f"📊 Median Rating: {median_rating:.2f}/10")  # ✅ Show median rating
+            print(f"🏆 Highest Rated: {highest_rated} ({movies[highest_rated]['rating']}/10)")
+            print(f"🐢 Lowest Rated: {lowest_rated} ({movies[lowest_rated]['rating']}/10)")
         else:
-            print("No movies found.")
+            print("📭 No movies available for statistics!")
 
     def _command_search_movie(self):
         """Search for a movie in the database."""
@@ -167,7 +175,7 @@ class MovieApp:
             </body>
             </html>
             """
-            with open("movies.html", "w", encoding="utf-8") as file:
+            with open("data/movies.html", "w", encoding="utf-8") as file:
                 file.write(generated_html)
             print("✅ Website generated successfully! Open 'movies.html' to view it.")
         except Exception as e:
