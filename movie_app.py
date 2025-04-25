@@ -55,13 +55,16 @@ class MovieApp:
             movie_data = response.json()
 
             if movie_data.get("Response") == "True":
-                self._storage.add_movie(
+                added = self._storage.add_movie(
                     title=movie_data["Title"],
                     year=movie_data["Year"],
                     rating=float(movie_data.get("imdbRating", 0)),
                     poster=movie_data.get("Poster", "N/A")
                 )
-                print(f"✅ '{movie_data['Title']}' added successfully!")
+                if added:
+                    print(f"✅ '{movie_data['Title']}' added successfully!")
+                else:
+                    print(f"⚠️ '{movie_data['Title']}' is already in the collection.")
             else:
                 print("❌ Movie not found. Please try another title or year.")
         except requests.exceptions.ConnectionError:
@@ -72,23 +75,29 @@ class MovieApp:
     def _command_delete_movie(self):
         """Delete a movie from the database."""
         title = input("Enter movie title to delete: ")
-        self._storage.delete_movie(title)
-        print(f"🗑️ '{title}' removed successfully!")
+        result = self._storage.delete_movie(title)
+        if result:
+            print(f"🗑️ '{title}' removed successfully!")
+        else:
+            print(f"❌ Error: Movie '{title}' not found!")
 
     def _command_update_movie(self):
         """Update movie rating in the database."""
         title = input("Enter movie title to update: ")
         rating = input("Enter new rating (1-10): ")
 
-        if not rating.strip():  # Check if rating is empty
+        if not rating.strip():  # Check if the rating is empty
             print("❌ Error: Rating cannot be empty!")
             return
 
         try:
             rating = float(rating)
             if 1 <= rating <= 10:
-                self._storage.update_movie(title, rating)
-                print(f"✏️ '{title}' rating updated successfully!")
+                updated = self._storage.update_movie(title, rating)
+                if updated:
+                    print(f"✏️ '{title}' rating updated successfully!")
+                else:
+                    print(f"❌ Error: Movie '{title}' not found!")
             else:
                 print("❌ Error: Rating must be between 1 and 10.")
         except ValueError:
@@ -233,9 +242,3 @@ class MovieApp:
                 commands[choice]()
             else:
                 print("❌ Invalid choice. Please try again.")
-
-
-
-
-
-

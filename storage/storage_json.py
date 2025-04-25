@@ -54,10 +54,8 @@ class StorageJson(IStorage):
         """Adds a movie to the storage."""
         movies = self.list_movies()
 
-        # Ensure the movie is not added twice accidentally
         if title in movies:
-            print(f"⚠️ '{title}' is already in the collection.")
-            return
+            return False
 
         movies[title] = {
             "year": year,
@@ -66,20 +64,32 @@ class StorageJson(IStorage):
             "link": f"https://www.imdb.com/find?q={quote_plus(title)}"
         }
 
-        self._save_movies(movies)  # Ensure this is called only once
-        print(f"✅ '{title}' added successfully!")
-
-    def delete_movie(self, title):
-        movies = self._load_movies()
-        if title in movies:
-            del movies[title]
-            self._save_movies(movies)
+        self._save_movies(movies)
+        return True
 
     def update_movie(self, title, rating):
+        """Update a movie's rating in the storage."""
         movies = self._load_movies()
-        if title in movies:
-            movies[title]['rating'] = rating
+        title_mapping = {k.lower(): k for k in movies.keys()}
+
+        if title.lower() in title_mapping:
+            actual_title = title_mapping[title.lower()]
+            movies[actual_title]['rating'] = rating
             self._save_movies(movies)
+            return True
+        return False
+
+    def delete_movie(self, title):
+        """Delete a movie from the storage."""
+        movies = self._load_movies()
+        title_mapping = {k.lower(): k for k in movies.keys()}
+
+        if title.lower() in title_mapping:
+            actual_title = title_mapping[title.lower()]
+            del movies[actual_title]
+            self._save_movies(movies)
+            return True
+        return False
 
     def list_movies(self):
         """Return all movies as a dictionary."""

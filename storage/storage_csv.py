@@ -1,6 +1,7 @@
 import csv
 import os
 from .istorage import IStorage
+from urllib.parse import quote_plus
 
 class StorageCsv(IStorage):
     def __init__(self, file_path):
@@ -16,7 +17,8 @@ class StorageCsv(IStorage):
                     movies[row["title"]] = {
                         "year": row["year"],
                         "rating": float(row["rating"]),
-                        "poster": row["poster"]
+                        "poster": row["poster"],
+                        "link": f"https://www.imdb.com/find?q={quote_plus(row['title'])}"  # Add default link
                     }
         return movies
 
@@ -27,7 +29,12 @@ class StorageCsv(IStorage):
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
             for title, details in movies.items():
-                writer.writerow({"title": title, "year": details["year"], "rating": details["rating"], "poster": details["poster"]})
+                writer.writerow({
+                    "title": title,
+                    "year": details["year"], 
+                    "rating": details["rating"],
+                    "poster": details["poster"]
+                })
 
     def list_movies(self):
         """Return all movies as a dictionary."""
@@ -42,7 +49,7 @@ class StorageCsv(IStorage):
             "poster": poster
         }
         self._save_movies(movies)
-        print(f"✅ '{title}' added successfully!")
+        return True
 
     def delete_movie(self, title):
         """Delete a movie from the CSV file."""
@@ -50,7 +57,7 @@ class StorageCsv(IStorage):
         if title in movies:
             del movies[title]
             self._save_movies(movies)
-            print(f"🗑️ '{title}' removed successfully!")
+            return True
         else:
             print(f"❌ Error: Movie '{title}' not found!")
 
@@ -60,6 +67,6 @@ class StorageCsv(IStorage):
         if title in movies:
             movies[title]["rating"] = rating
             self._save_movies(movies)
-            print(f"✏️ '{title}' rating updated successfully!")
+            return True
         else:
             print(f"❌ Error: Movie '{title}' not found!")
