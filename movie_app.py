@@ -50,7 +50,7 @@ class MovieApp:
             url += f"&y={year}"
 
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=10)  # Add timeout to prevent hanging indefinitely
             response.raise_for_status()
             movie_data = response.json()
 
@@ -142,35 +142,29 @@ class MovieApp:
             print(f"{title} - ⭐ {details['rating']}/10")
 
     def _generate_website(self):
-        """Generate an HTML page displaying the movie collection with error handling."""
+        """
+        Generate an HTML page displaying the movie collection with error handling.
+
+        Uses an HTML template file instead of hardcoding HTML.
+        """
         try:
             movies = self._storage.list_movies()
             if not movies:
                 print("❌ No movies found. Add movies first before generating the website.")
                 return
 
-            generated_html = """
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>My Movie Collection</title>
-                <style>
-                    body { font-family: Arial, sans-serif; text-align: center; background-color: #1c1c1c; color: white; }
-                    h1 { color: #ffcc00; }
-                    .movie-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-                    .movie-card { width: 300px; background: #333; padding: 10px; border-radius: 10px; }
-                    img { width: 100%; border-radius: 10px; }
-                    a { color: #ffcc00; text-decoration: none; }
-                </style>
-            </head>
-            <body>
-                <h1>My Movie Collection 🎬</h1>
-                <div class="movie-container">
-            """
+            # Read the HTML template file
+            try:
+                with open("static/index_template.html", "r", encoding="utf-8") as template_file:
+                    template = template_file.read()
+            except FileNotFoundError:
+                print("❌ Error: HTML template file not found.")
+                return
+
+            # Generate movie cards HTML
+            movie_cards_html = ""
             for title, details in movies.items():
-                generated_html += f"""
+                movie_cards_html += f"""
                 <div class="movie-card">
                     <h2>{title}</h2>
                     <p>📆 {details['year']}</p>
@@ -179,13 +173,14 @@ class MovieApp:
                     <p><a href="{details['link']}" target="_blank">🔗 IMDb Link</a></p>
                 </div>
                 """
-            generated_html += """
-                </div>
-            </body>
-            </html>
-            """
+
+            # Replace the placeholder with the movie cards HTML
+            generated_html = template.replace("<!-- MOVIE_CARDS_PLACEHOLDER -->", movie_cards_html)
+
+            # Write the generated HTML to the output file
             with open("data/movies.html", "w", encoding="utf-8") as file:
                 file.write(generated_html)
+
             print("✅ Website generated successfully! Open 'movies.html' to view it.")
         except Exception as e:
             print(f"❌ Error: Failed to generate website. {e}")

@@ -17,6 +17,18 @@
             "rating": 8.0,
             "poster": "https://m.media-amazon.com/images/M/MV5BZTlkM2EzOTAtMTgzZi00NDEyLWJjOGItYWJiYTE2NmRlODMwXkEyXkFqcGc@._V1_SX300.jpg",
             "link": "https://www.imdb.com/find?q=Taxi"
+        },
+        "Cocaine": {
+            "year": "2005",
+            "rating": 7.1,
+            "poster": "https://m.media-amazon.com/images/M/MV5BMTY0NjAzNDgtNGM0NS00ODFhLWE2MjktZTQwM2EwZDFjOWI3XkEyXkFqcGdeQXVyMjc2Nzg5OTQ@._V1_SX300.jpg",
+            "link": "https://www.imdb.com/find?q=Cocaine"
+        },
+        "Blow": {
+            "year": "2001",
+            "rating": 7.5,
+            "poster": "https://m.media-amazon.com/images/M/MV5BNTNkMzMwOWItM2FmYS00YmI2LWE4NjUtMmI5MDk0YTkwZjM2XkEyXkFqcGc@._V1_SX300.jpg",
+            "link": "https://www.imdb.com/find?q=Blow"
         }
     }
 }
